@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.robert</groupId>
-    <artifactId>GoogleFireStroreDemo</artifactId>
+    <artifactId>GoogleFireStoreDemo</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>GoogleFireStroreDemo</name>
     <description>GoogleFireStroreDemo</description>
