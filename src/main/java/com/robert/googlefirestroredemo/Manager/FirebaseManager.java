@@ -14,10 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 @Component
@@ -41,11 +38,11 @@ public class FirebaseManager {
     }
 
     public void addUser(User user) {
-        if(!checkIfUsernameExists(user)) {
+        if(null == checkIfUsernameExists(user.username())) {
             DocumentReference docRef = firestoreDB.collection("users").document(user.username());
 
             Map<String, Object> userData = new HashMap<>();
-            userData.put("firstname", user.firstname());
+            userData.put("firstName", user.firstname());
             userData.put("lastName", user.lastName());
             userData.put("email", user.email());
             userData.put("password", user.password());
@@ -53,22 +50,42 @@ public class FirebaseManager {
 
             docRef.set(userData);
         }
+        else {
+            //TODO obsłuż błąd
+            System.out.println("Uzytkownik juz istnieje !!! ... ");
+        }
     }
 
-    public boolean checkIfUsernameExists(User newUser)  {
+    public boolean loginUserCheck(String username, String password) {
+        User user = checkIfUsernameExists(username);
+        return (null != user) && (user.password() == password.hashCode());
+    }
+
+
+    public User checkIfUsernameExists(String username)  {
         ApiFuture<QuerySnapshot> query = firestoreDB.collection("users").get();
         try {
             QuerySnapshot querySnapshot = query.get();
             List<QueryDocumentSnapshot> documents = querySnapshot.getDocuments();
             Optional<QueryDocumentSnapshot> element = documents.stream()
-                    .filter(user -> user.getId().equals(newUser.username())).findFirst();
+                    .filter(user -> user.getId().equals(username)).findFirst();
 
-            System.out.println(newUser.username() + " Exisit? - "+ element.isPresent());
-            return element.isPresent();
+            if(element.isPresent()) {
+                QueryDocumentSnapshot userInstance = element.get();
+
+                return new User(
+                        userInstance.getId(),
+                        userInstance.getString("firstName"),
+                        userInstance.getString("lastName"),
+                        userInstance.getString("email"),
+                        userInstance.getLong("password")
+
+                );
+            }
         } catch (ExecutionException | InterruptedException ex) {
             ex.printStackTrace();
         }
-        return false;
+        return null;
     }
 
 

@@ -5,6 +5,6 @@ public record User(
         String firstname,
         String lastName,
         String email,
-        int password
+        Long password
 ) {
 }

@@ -1,6 +1,5 @@
 package com.robert.googlefirestroredemo.Controller;
 
-import com.google.firebase.internal.FirebaseService;
 import com.robert.googlefirestroredemo.Entity.User;
 import com.robert.googlefirestroredemo.Manager.FirebaseManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,15 @@ public class MainController {
     }
 
     @PostMapping("/processLogin")
-    public String processLogin() {
+    public String processLogin(@RequestParam String username, @RequestParam String password){
+        if(!firebaseManager.loginUserCheck(username, password)) {
+            return "redirect:/";
+        }
+        return "redirect:/mainPage";
+    }
+
+    @GetMapping("/mainPage")
+    public String mainPage() {
         return "mainPage";
     }
 
@@ -35,9 +42,9 @@ public class MainController {
     ) {
 
         firebaseManager.addUser(
-                new User(username, firstName, lastName, email, password.hashCode())
+                new User(username, firstName, lastName, email, (long) password.hashCode())
         );
-        return "register";
+        return "redirect:/mainPage";
     }
 
     @GetMapping("/register")
